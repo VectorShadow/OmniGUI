@@ -8,9 +8,10 @@ public class ScreenTools {
         return new Dimension(dm.getWidth(), dm.getHeight());
     }
     public static Dimension getDefaultWindowSize() {
+        Dimension dim = getMonitorDimension();
         return new Dimension(
-                (int)(getMonitorDimension().width / Math.sqrt(2.0)),
-                (int)(getMonitorDimension().height / Math.sqrt(2.0))
+                (int)(dim.width / Math.sqrt(2.0)),
+                (int)(dim.height / Math.sqrt(2.0))
         );
     }
 
