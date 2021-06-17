@@ -84,7 +84,7 @@ public class Gui {
      * @return a Point on the canvas
      */
     public Point getMouseEventLocationOnCanvas(MouseEvent mouseEvent) {
-        Point eventLocation = new Point(mouseEvent.getX(), mouseEvent.getY());
+        Point eventLocation = getMouseEventCoordinates(mouseEvent);
         return descalePixelCoordinate(frame.getBlankPanelImage(), canvas.getImage(), eventLocation);
     }
 

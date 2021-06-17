@@ -44,6 +44,8 @@ public class OmniPanel extends JPanel {
     void setFullscreenMode(boolean fullscreenMode) {
         isInFullscreenMode = fullscreenMode;
         Dimension d = (isInFullscreenMode ? ScreenTools.getMonitorDimension() : windowedDimension);
+        if (d.height < 1) d.height = 1;
+        if (d.width < 1) d.width = 1;
         setPreferredSize(d);
         setMinimumSize(d);
         setMaximumSize(d);
