@@ -1,4 +1,4 @@
-package window;
+package vsdl.omnigui.window;
 
 import javax.swing.*;
 import java.awt.*;

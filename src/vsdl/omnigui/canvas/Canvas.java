@@ -1,4 +1,4 @@
-package canvas;
+package vsdl.omnigui.canvas;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

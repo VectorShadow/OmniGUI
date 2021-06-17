@@ -1,4 +1,4 @@
-package image;
+package vsdl.omnigui.image;
 
 
 import org.jetbrains.annotations.NotNull;

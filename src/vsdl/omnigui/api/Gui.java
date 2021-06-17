@@ -1,9 +1,9 @@
-package api;
+package vsdl.omnigui.api;
 
-import canvas.Canvas;
-import window.OmniFrame;
+import vsdl.omnigui.canvas.Canvas;
+import vsdl.omnigui.window.OmniFrame;
 
-import static image.ImageScaler.*;
+import static vsdl.omnigui.image.ImageScaler.*;
 
 import javax.swing.*;
 import java.awt.*;

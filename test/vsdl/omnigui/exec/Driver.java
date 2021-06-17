@@ -1,6 +1,6 @@
-package exec;
+package vsdl.omnigui.exec;
 
-import api.Gui;
+import vsdl.omnigui.api.Gui;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;

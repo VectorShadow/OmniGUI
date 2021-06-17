@@ -1,6 +1,6 @@
-package window;
+package vsdl.omnigui.window;
 
-import image.ImageScaler;
+import vsdl.omnigui.image.ImageScaler;
 
 import javax.swing.*;
 import java.awt.*;
