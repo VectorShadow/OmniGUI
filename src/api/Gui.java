@@ -3,9 +3,12 @@ package api;
 import canvas.Canvas;
 import window.OmniFrame;
 
+import static image.ImageScaler.*;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
@@ -33,8 +36,8 @@ public class Gui {
         }
         if (listener instanceof KeyListener) {
             frame.addKeyListener((KeyListener) listener);
-        } else if (listener instanceof MouseListener) {
-            frame.addMouseListener((MouseListener) listener);
+        } else if (listener instanceof MouseListener) { //to correctly capture coordinates, this must be on the pane
+            frame.getContentPane().addMouseListener((MouseListener) listener);
         } else if (listener instanceof WindowListener) {
             frame.addWindowListener((WindowListener) listener);
         } else {
@@ -73,6 +76,16 @@ public class Gui {
         if (iconImagePath != null) {
             frame.setIconImage(new ImageIcon(iconImagePath).getImage());
         }
+    }
+
+    /**
+     * Get the canvas coordinates of a MouseEvent on the frame image.
+     * @param mouseEvent the MouseEvent to process
+     * @return a Point on the canvas
+     */
+    public Point getMouseEventLocationOnCanvas(MouseEvent mouseEvent) {
+        Point eventLocation = new Point(mouseEvent.getX(), mouseEvent.getY());
+        return descalePixelCoordinate(frame.getBlankPanelImage(), canvas.getImage(), eventLocation);
     }
 
     /**

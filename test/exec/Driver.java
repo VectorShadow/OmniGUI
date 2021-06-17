@@ -3,6 +3,8 @@ package exec;
 import api.Gui;
 
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 
 public class Driver {
@@ -30,5 +32,34 @@ public class Driver {
         gui.paintCanvas(testImage, origin, -1);
         gui.paintCanvas(transparentTestImage, xparentOrigin, RGB);
         gui.updateFrameImage();
+        gui.addEventListener(
+                new MouseListener() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        Point p = gui.getMouseEventLocationOnCanvas(e);
+                        System.out.println("Mouse clicked at Point(" + p.x + ", " + p.y + ") on canvas.");
+                    }
+
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+
+                    }
+
+                    @Override
+                    public void mouseReleased(MouseEvent e) {
+
+                    }
+
+                    @Override
+                    public void mouseEntered(MouseEvent e) {
+
+                    }
+
+                    @Override
+                    public void mouseExited(MouseEvent e) {
+
+                    }
+                }
+        );
     }
 }

@@ -21,6 +21,26 @@ public class OmniPanel extends JPanel {
         setVisible(true);
     }
 
+    BufferedImage getBlankScaledImage() {
+        return new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {//updates the displayed image.
+        super.paintComponent(g);
+        if (scaledImage != null) {
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.drawImage(scaledImage, 0, 0, null);
+        }
+    }
+
+    private void rescaleImage() {
+        scaledImage = getBlankScaledImage();
+        if (rawImage != null)
+            scaledImage = ImageScaler.resize(rawImage, scaledImage);
+    }
+
     void setFullscreenMode(boolean fullscreenMode) {
         isInFullscreenMode = fullscreenMode;
         Dimension d = (isInFullscreenMode ? ScreenTools.getMonitorDimension() : windowedDimension);
@@ -35,22 +55,6 @@ public class OmniPanel extends JPanel {
                         BufferedImage.TYPE_INT_ARGB
                 )
         );
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {//updates the displayed image.
-        super.paintComponent(g);
-        if (scaledImage != null) {
-            Graphics2D g2d = (Graphics2D) g;
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2d.drawImage(scaledImage, 0, 0, null);
-        }
-    }
-
-    private void rescaleImage() {
-        scaledImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
-        if (rawImage != null)
-            scaledImage = ImageScaler.resize(rawImage, scaledImage);
     }
 
     public void setImage(BufferedImage bufferedImage) {

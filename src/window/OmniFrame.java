@@ -50,6 +50,10 @@ public class OmniFrame extends JFrame {
         }
     }
 
+    public BufferedImage getBlankPanelImage() {
+        return panel.getBlankScaledImage();
+    }
+
     public void toggleFullScreenMode() {
         isInFullscreenMode = !isInFullscreenMode;
         initializeContents();
