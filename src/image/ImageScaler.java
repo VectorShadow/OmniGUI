@@ -36,7 +36,7 @@ public class ImageScaler {
      * @return an image equivalent to the source image scaled to the size of the target image
      */
     public static BufferedImage resize(@NotNull BufferedImage source, @NotNull BufferedImage target) {
-        double[] ratios = getAspectRatios(source, target);
+        double[] ratios = getAspectRatios(target, source);
         AffineTransform xform = new AffineTransform();
         xform.scale(ratios[1], ratios[0]);
         AffineTransformOp op = new AffineTransformOp(xform, OP_TYPE);
