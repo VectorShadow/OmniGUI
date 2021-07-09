@@ -6,130 +6,21 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-//TODO - dynamically discover the appropriate image width for each character! 
-// Otherwise kerning will look awful as in early VA...
-
 public class TextImager {
 
-    private static final String DEFAULT_FONT_NAME = Font.DIALOG;
-    private static final int DEFAULT_FONT_STYLE = Font.PLAIN;
+    private static final double FONT_FACTOR = 0.75;
 
-    public static BufferedImage fromChar(
-            char symbol,
-            int fontSize,
-            Color foreground,
-            Color background,
-            boolean formatAsText
-    ) {
-        return fromChar(
-                symbol,
-                new Font(DEFAULT_FONT_NAME, DEFAULT_FONT_STYLE, fontSize),
-                foreground,
-                background,
-                formatAsText
-        );
-    }
+    private static final String SPC = " ";
+    private static final String TAB = "\t";
+    private static final String NL = "\n";
 
-    public static BufferedImage fromChar(
-            char symbol,
-            Font font,
-            Color foreground,
-            Color background,
-            boolean formatAsText
-    ) {
-        final JLabel L = getRenderLabelBySize(font.getSize(), formatAsText);
-        L.setFont(font);
-        L.setBackground(background);
-        L.setForeground(foreground);
-        L.setText("" + symbol);
-        final BufferedImage B = new BufferedImage(L.getWidth(), L.getHeight(), BufferedImage.TYPE_INT_RGB);
-        L.paint(B.getGraphics());
-        return B;
-    }
+    private static final String TAB_ALIAS = "    ";
 
-    public static BufferedImage fromString(
-            String text,
-            int fontSize,
-            int maxHeightInPixels,
-            int maxWidthInPixels,
-            Color foreground,
-            Color background
-    ) {
-        return fromString(
-                text,
-                new Font(DEFAULT_FONT_NAME, DEFAULT_FONT_STYLE, fontSize),
-                maxHeightInPixels,
-                maxWidthInPixels,
-                foreground,
-                background
-        );
-    }
+    private static String fontName = Font.DIALOG;
+    private static int fontStyle = Font.PLAIN;
 
-    public static BufferedImage fromString(
-            String text,
-            Font font,
-            int maxHeightInPixels,
-            int maxWidthInPixels,
-            Color foreground,
-            Color background
-    ) {
-        int charHeight = getPixelsByFontSize(font.getSize());
-        int charWidth = getFormattedWidth(charHeight);
-        int maxCharsPerLine = maxWidthInPixels / charWidth;
-        int maxLines = maxHeightInPixels / charHeight;
-        if (maxCharsPerLine == 0)
-            throw new IllegalArgumentException("Font size is too large for allotted width(" + maxWidthInPixels + ")");
-        if (maxLines == 0)
-            throw new IllegalArgumentException("Font size is too large for allotted height(" + maxHeightInPixels + ")");
-        BufferedImage result = new BufferedImage(
-          charWidth * maxCharsPerLine,
-          charHeight * maxLines,
-          BufferedImage.TYPE_INT_RGB
-        );
-        ArrayList<String> tokens = tokenize(text);
-        int charIndex = 0;
-        int lineIndex = 0;
-        int tokenIndex = 0;
-        String nextToken;
-        while (lineIndex < maxLines && tokenIndex < tokens.size()) {
-            //get the next token
-            nextToken = tokens.get(tokenIndex++);
-            //check for tab, convert to four spaces
-            if (nextToken.equals("\t")) {
-                nextToken = "    ";
-            }
-            //check for new line
-            else if (nextToken.equals("\n")) {
-                ++lineIndex;
-                continue;
-            }
-            //check for line wrap
-            if (nextToken.length() + charIndex > maxCharsPerLine) {
-                charIndex = 0; //reset the charIndex
-                ++lineIndex; //increment the lineIndex
-                --tokenIndex; //decrement the tokenIndex - we need to parse this token again on the next line.
-                continue;
-            }
-            //image each char and copy it to the result
-            for (char c : nextToken.toCharArray()) {
-                BufferedImage charImage = fromChar(c, font, foreground, background, true);
-                for (int w = 0; w < charWidth; ++w) {
-                    for (int h = 0; h < charHeight; ++h) {
-                        result.setRGB(
-                                (charIndex * charWidth) + w,
-                                (lineIndex * charHeight) + h,
-                                charImage.getRGB(w, h)
-                        );
-                    }
-                }
-                ++charIndex;
-            }
-        }
-        return result;
-    }
-
-    private static ArrayList<String> tokenize(String s) {
-        StringTokenizer stringTokenizer = new StringTokenizer(s, " \t\n", true);
+    private static ArrayList<String> tokenize(String input) {
+        StringTokenizer stringTokenizer = new StringTokenizer(input, SPC + TAB + NL, true);
         ArrayList<String> out = new ArrayList<>();
         while (stringTokenizer.hasMoreTokens()) {
             out.add(stringTokenizer.nextToken());
@@ -137,21 +28,98 @@ public class TextImager {
         return out;
     }
 
-    private static int getPixelsByFontSize(int fontSize) {
-        return (int)((double)fontSize * (4.0 / 3.0));
+    private static JLabel createRenderLabel(int height, Color fg, Color bg) {
+        Font font = new Font(fontName, fontStyle, (int)(height * FONT_FACTOR));
+        JLabel label = new JLabel();
+        label.setOpaque(true);
+        label.setFont(font);
+        label.setBackground(bg);
+        label.setForeground(fg);
+        return label;
     }
 
-    private static int getFormattedWidth(int heightInPixels) {
-        return (int)((double)heightInPixels * (9.0 / 16.0));
+    private static BufferedImage imageWord(String word, int lineHeight, Color fg, Color bg) {
+        JLabel label = createRenderLabel(lineHeight, fg, bg);
+        FontMetrics fm = label.getFontMetrics(label.getFont());
+        int lineWidth = fm.stringWidth(word);
+        if (lineWidth <= 0)
+            System.out.println("Line width was zero for word:<" + word + ">.");
+        BufferedImage result = new BufferedImage(lineWidth, lineHeight, BufferedImage.TYPE_INT_RGB);
+        label.setSize(lineWidth, lineHeight);
+        label.setText(word);
+        label.paint(result.getGraphics());
+        return result;
     }
 
-    private static JLabel getRenderLabelBySize(int fontSize, boolean formatAsText) {
-        JLabel ret = new JLabel();
-        ret.setHorizontalAlignment(SwingConstants.CENTER);
-        ret.setOpaque(true);
-        int h = getPixelsByFontSize(fontSize);
-        int w = formatAsText ? getFormattedWidth(h) : h;
-        ret.setSize(w, h);
-        return ret;
+    private static void composeImage(String text, int lineHeight, Color fg, Color bg, BufferedImage img) {
+        ArrayList<String> allWords = tokenize(text);
+        int lineIndex = 0;
+        int pixelOffset = 0;
+        for (String word : allWords) {
+            if (word.equals(NL)) {
+                ++lineIndex;
+                pixelOffset = 0;
+                continue;
+            }
+            if (word.equals(SPC) && pixelOffset == 0) {
+                continue; //ignore leading spaces
+            }
+            BufferedImage wordImage = imageWord(word.equals(TAB) ? TAB_ALIAS : word, lineHeight, fg, bg);
+            if (wordImage.getWidth() > img.getWidth()) {
+                throw new IllegalArgumentException(
+                        "Individual token " + word + " exceeds image width limit(" + img.getWidth() + ")."
+                );
+            }
+            if (pixelOffset + wordImage.getWidth() > img.getWidth()) {
+                ++lineIndex;
+                pixelOffset = 0;
+            }
+            if ((lineIndex + 1) * lineHeight > img.getHeight()) return;
+            for (int wordImageX = 0; wordImageX < wordImage.getWidth(); ++wordImageX) {
+                for (int wordImageY = 0; wordImageY < wordImage.getHeight(); ++wordImageY) {
+                    img.setRGB(
+                            wordImageX + pixelOffset,
+                            wordImageY + (lineIndex * lineHeight),
+                            wordImage.getRGB(wordImageX, wordImageY)
+                    );
+                }
+            }
+            pixelOffset += wordImage.getWidth();
+        }
+    }
+
+    public static BufferedImage image(
+            String text,
+            int lineHeightInPixels,
+            int imageHeightInPixels,
+            int imageWidthInPixels,
+            Color foregroundColor,
+            Color backgroundColor) {
+        BufferedImage result = new BufferedImage(imageWidthInPixels, imageHeightInPixels, BufferedImage.TYPE_INT_RGB);
+        composeImage(text, lineHeightInPixels, foregroundColor, backgroundColor, result);
+        return result;
+    }
+
+    public static BufferedImage imageAsTile(
+            char symbol,
+            int tileDimension,
+            Color foregroundColor,
+            Color backgroundColor
+    ) {
+        JLabel label = createRenderLabel(tileDimension, foregroundColor, backgroundColor);
+        label.setText("" + symbol);
+        label.setSize(tileDimension, tileDimension);
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        BufferedImage result = new BufferedImage(tileDimension, tileDimension, BufferedImage.TYPE_INT_RGB);
+        label.paint(result.getGraphics());
+        return result;
+    }
+
+    public static void setFontName(String fontName) {
+        TextImager.fontName = fontName;
+    }
+
+    public static void setFontStyle(int fontStyle) {
+        TextImager.fontStyle = fontStyle;
     }
 }
