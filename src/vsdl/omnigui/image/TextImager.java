@@ -73,17 +73,15 @@ public class TextImager {
                 pixelOffset = 0;
             }
             if ((lineIndex + 1) * lineHeight > img.getHeight()) return;
-            for (int wordImageX = 0; wordImageX < wordImage.getWidth(); ++wordImageX) {
-                for (int wordImageY = 0; wordImageY < wordImage.getHeight(); ++wordImageY) {
-                    img.setRGB(
-                            wordImageX + pixelOffset,
-                            wordImageY + (lineIndex * lineHeight),
-                            wordImage.getRGB(wordImageX, wordImageY)
-                    );
-                }
-            }
+            ImageComposer.superimpose(wordImage, img, new Point(pixelOffset, (lineIndex * lineHeight)));
             pixelOffset += wordImage.getWidth();
         }
+    }
+
+    public static Dimension measureText(String text, int lineHeightInPixels) {
+        JLabel label = createRenderLabel(lineHeightInPixels, null, null);
+        FontMetrics fm = label.getFontMetrics(label.getFont());
+        return new Dimension(fm.stringWidth(text), lineHeightInPixels);
     }
 
     public static BufferedImage image(

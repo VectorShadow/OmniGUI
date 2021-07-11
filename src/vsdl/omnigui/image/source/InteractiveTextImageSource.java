@@ -1,6 +1,10 @@
-package vsdl.omnigui.image;
+package vsdl.omnigui.image.source;
+
+import org.jetbrains.annotations.NotNull;
+import vsdl.omnigui.image.TextImager;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 
 public class InteractiveTextImageSource implements InteractiveImageSource {
@@ -34,12 +38,17 @@ public class InteractiveTextImageSource implements InteractiveImageSource {
     }
 
     @Override
-    public void inform() {
+    public void inform(@NotNull Point imageCoordinates) {
         System.out.println("Information: " + TEXT);
     }
 
     @Override
-    public void invoke() {
+    public void input(KeyEvent e) {
+        System.out.println("Hotkey pressed.");
+    }
+
+    @Override
+    public void invoke(@NotNull Point imageCoordinates) {
         RUN.run();
     }
 

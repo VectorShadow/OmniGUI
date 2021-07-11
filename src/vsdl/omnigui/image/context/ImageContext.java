@@ -1,6 +1,6 @@
 package vsdl.omnigui.image.context;
 
-import vsdl.omnigui.image.InteractiveImageSource;
+import vsdl.omnigui.image.source.InteractiveImageSource;
 
 import java.awt.*;
 
