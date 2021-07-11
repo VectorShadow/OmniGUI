@@ -42,8 +42,6 @@ public class TextImager {
         JLabel label = createRenderLabel(lineHeight, fg, bg);
         FontMetrics fm = label.getFontMetrics(label.getFont());
         int lineWidth = fm.stringWidth(word);
-        if (lineWidth <= 0)
-            System.out.println("Line width was zero for word:<" + word + ">.");
         BufferedImage result = new BufferedImage(lineWidth, lineHeight, BufferedImage.TYPE_INT_RGB);
         label.setSize(lineWidth, lineHeight);
         label.setText(word);
