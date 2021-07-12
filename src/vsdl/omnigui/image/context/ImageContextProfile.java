@@ -23,10 +23,8 @@ public class ImageContextProfile {
     }
 
     public void keyPress(KeyEvent e) {
-        System.out.println("KeyPress registered.");
         ImageContext context = HOTKEYS.get(e.getExtendedKeyCode() | e.getModifiersEx());
         if (context != null) context.getSource().input(e);
-        else System.out.println("...but associated context was null.");
     }
 
     public void mouseClick(Point p, boolean isLeftClick) {
