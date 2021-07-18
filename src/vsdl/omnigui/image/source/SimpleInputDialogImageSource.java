@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 
-public class SimpleInputDialogInputSource implements InteractiveImageSource {
+public class SimpleInputDialogImageSource implements InteractiveImageSource {
 
     private static final int BACKGROUND_COLOR = 0;
     private static final int TITLE_COLOR = 1;
@@ -31,7 +31,7 @@ public class SimpleInputDialogInputSource implements InteractiveImageSource {
 
     private int selectedField = 0;
 
-    public SimpleInputDialogInputSource(
+    public SimpleInputDialogImageSource(
         String title,
         String[] inputFieldNames,
         int[] inputSizeLimits,
