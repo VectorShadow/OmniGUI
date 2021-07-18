@@ -84,6 +84,12 @@ public class TextImager {
         return new Dimension(fm.stringWidth(text), lineHeightInPixels);
     }
 
+    public static Dimension measureEmptyField(int maximumCharacters, int lineHeightInPixels) {
+        JLabel label = createRenderLabel(lineHeightInPixels, null, null);
+        FontMetrics fm = label.getFontMetrics(label.getFont());
+        return new Dimension(fm.getMaxAdvance() * maximumCharacters, lineHeightInPixels);
+    }
+
     public static BufferedImage image(
             String text,
             int lineHeightInPixels,

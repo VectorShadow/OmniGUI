@@ -29,7 +29,7 @@ public class SimpleInputDialogInputSource implements InteractiveImageSource {
     private final int IMAGE_HEIGHT;
     private final int IMAGE_WIDTH;
 
-    private int selectedField;
+    private int selectedField = 0;
 
     public SimpleInputDialogInputSource(
         String title,
@@ -76,7 +76,14 @@ public class SimpleInputDialogInputSource implements InteractiveImageSource {
         LINE_HEIGHT = lineHeight;
         IMAGE_HEIGHT = LINE_HEIGHT * (FIELD_COUNT + 2); //title, empty line, one line per field
         int maxWidth = TextImager.measureText(TITLE, LINE_HEIGHT).width;
-        //todo - calculate image width by maximum sum of field name and field size limit
+        for (int i = 0; i < FIELD_COUNT; ++i) {
+            Dimension dName = TextImager.measureText(INPUT_FIELDS[i], LINE_HEIGHT);
+            Dimension dField = TextImager.measureEmptyField(INPUT_SIZE_LIMITS[i], LINE_HEIGHT);
+            int width = dName.width + dField.width;
+            if (width > maxWidth) {
+                maxWidth = width;
+            }
+        }
         IMAGE_WIDTH = maxWidth;
     }
 
