@@ -50,13 +50,19 @@ public class SimpleMenuImageSource implements InteractiveImageSource {
             Color enabledOptionColor,
             Color disabledOptionColor
     ){
+        if (options == null || options.length == 0) {
+            throw new IllegalArgumentException("Number of options must be > 0.");
+        }
         OPTION_COUNT = options.length;
         if (
-                optionDescriptions.length != OPTION_COUNT ||
-                        optionDefaultEnabledStates.length != OPTION_COUNT ||
-                        optionExecutions.length != OPTION_COUNT
+                optionDescriptions.length != OPTION_COUNT
+                        || optionDefaultEnabledStates.length != OPTION_COUNT
+                        || optionExecutions.length != OPTION_COUNT
         ) {
-            throw new IllegalArgumentException("Number of options, option descriptions, option enabled states, and option executions must be the same.");
+            throw new IllegalArgumentException(
+                    "Number of options, option descriptions, option enabled states, " +
+                            "and option executions must be the same."
+            );
         }
         TITLE = menuTitle;
         OPTIONS = options;
