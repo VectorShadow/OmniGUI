@@ -61,14 +61,4 @@ public abstract class InteractiveTextDialogImageSource implements InteractiveIma
     public Dimension size() {
         return imageDimension;
     }
-
-    public Point getOrigin(Dimension canvasSize) {
-        int x = canvasSize.width - imageDimension.width;
-        int y = canvasSize.height - imageDimension.height;
-        if (x < 0 || y < 0)
-            throw new IllegalArgumentException("Image size exceeds canvas size" +
-                    "(Image: " + imageDimension.width + "x" + imageDimension.height + ", " +
-                    "Canvas: (" + canvasSize.width + "x" + canvasSize.height + ").");
-        return new Point(x / 2, y / 2);
-    }
 }
