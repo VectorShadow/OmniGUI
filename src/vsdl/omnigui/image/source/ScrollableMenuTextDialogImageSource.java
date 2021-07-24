@@ -122,18 +122,6 @@ public class ScrollableMenuTextDialogImageSource extends InteractiveTextDialogIm
 
     private ScrollableMenuTextDialogImageSource(){}
 
-    private int getOptionIndex(int clickHeight) {
-        return (clickHeight / textHeight) - 2;
-    }
-
-    public Point getOrigin(Dimension canvasSize) {
-        int x = canvasSize.width - imageDimension.width;
-        int y = canvasSize.height - imageDimension.height;
-        if (x < 0 || y < 0)
-            throw new IllegalArgumentException("Image size exceeds canvas size.");
-        return new Point(x / 2, y / 2);
-    }
-
     @Override
     public BufferedImage image() {
         Dimension d = size();
@@ -183,7 +171,7 @@ public class ScrollableMenuTextDialogImageSource extends InteractiveTextDialogIm
 
     @Override
     public void inform(@NotNull Point imageCoordinates) {
-        //todo
+        //todo?
     }
 
     @Override
@@ -210,7 +198,8 @@ public class ScrollableMenuTextDialogImageSource extends InteractiveTextDialogIm
 
     @Override
     public void invoke(Point imageCoordinates) {
-        int optionIndex = getOptionIndex(imageCoordinates == null ? 0 : imageCoordinates.y);
+        if (imageCoordinates == null) return;
+        int optionIndex = getOptionIndex(imageCoordinates.y);
         if (optionIndex == selectedOption) {
             optionExecutions[selectedOption].run();
         } else if (optionIndex >= 0 && optionEnabledStates[optionIndex]) {

@@ -10,14 +10,17 @@ public class TextImager {
 
     private static final double FONT_FACTOR = 0.75;
 
+    private static final String DEFAULT_FONT_NAME = Font.DIALOG;
+    private static final int DEFAULT_FONT_STYLE = Font.PLAIN;
+
     private static final String SPC = " ";
     private static final String TAB = "\t";
     private static final String NL = "\n";
 
     private static final String TAB_ALIAS = "    ";
 
-    private static String fontName = Font.DIALOG;
-    private static int fontStyle = Font.PLAIN;
+    private static String fontName = DEFAULT_FONT_NAME;
+    private static int fontStyle = DEFAULT_FONT_STYLE;
 
     private static ArrayList<String> tokenize(String input) {
         StringTokenizer stringTokenizer = new StringTokenizer(input, SPC + TAB + NL, true);
@@ -115,6 +118,14 @@ public class TextImager {
         BufferedImage result = new BufferedImage(tileDimension, tileDimension, BufferedImage.TYPE_INT_RGB);
         label.paint(result.getGraphics());
         return result;
+    }
+
+    public static void resetFontName() {
+        setFontName(DEFAULT_FONT_NAME);
+    }
+
+    public static void resetFontStyle() {
+        setFontStyle(DEFAULT_FONT_STYLE);
     }
 
     public static void setFontName(String fontName) {

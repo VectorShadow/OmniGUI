@@ -24,6 +24,10 @@ public class ImageContextHierarchy implements Iterable<ImageContext> {
         return null;
     }
 
+    ImageContext getUppermost() {
+        return IMAGE_CONTEXT_LIST.get(IMAGE_CONTEXT_LIST.size() - 1);
+    }
+
     @NotNull
     @Override
     public Iterator<ImageContext> iterator() {

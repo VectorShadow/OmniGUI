@@ -24,7 +24,13 @@ public class ImageContextProfile {
 
     public void keyPress(KeyEvent e) {
         ImageContext context = HOTKEYS.get(e.getExtendedKeyCode() | e.getModifiersEx());
-        if (context != null) context.getSource().input(e);
+        if (context != null) {
+            context.getSource().input(e);
+        } else {
+            //attempt to apply the keypress to the uppermost context in the hierarchy
+            //this way contexts with a large number of valid inputs need not hash them all as hotkeys.
+            ICH.getUppermost().getSource().input(e);
+        }
     }
 
     public void mouseClick(Point p, boolean isLeftClick) {

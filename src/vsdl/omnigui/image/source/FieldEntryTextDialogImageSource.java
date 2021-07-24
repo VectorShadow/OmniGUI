@@ -1,5 +1,8 @@
 package vsdl.omnigui.image.source;
 
+import org.jetbrains.annotations.NotNull;
+import vsdl.omnigui.image.ImageComposer;
+import vsdl.omnigui.image.InputEventUtils;
 import vsdl.omnigui.image.TextImager;
 
 import java.awt.*;
@@ -18,37 +21,44 @@ public class FieldEntryTextDialogImageSource extends InteractiveTextDialogImageS
         Dimension calculateImageDimension() {
             final int H = SRC.textHeight * (SRC.optionCount + 2); //title, empty line, one line per field
             int maxWidth = TextImager.measureText(SRC.title, SRC.textHeight).width;
+            System.out.println("Max Width after title: " + maxWidth);
             for (int i = 0; i < SRC.optionCount; ++i) {
                 Dimension dName = TextImager.measureText(
-                        ((FieldEntryTextDialogImageSource)SRC).inputFields[i],
+                        SRC.optionNames[i],
                         SRC.textHeight
                 );
                 Dimension dField = TextImager.measureEmptyField(
                         ((FieldEntryTextDialogImageSource)SRC).inputSizeLimits[i],
                         SRC.textHeight
                 );
-                int width = dName.width + dField.width;
+                System.out.println("Name width: " + dName.width + "; field width: " + dField.width);
+                int width = Math.max(2 * dName.width, 2 * dField.width);
                 if (width > maxWidth) {
                     maxWidth = width;
                 }
+                System.out.println("Max Width after option: " + maxWidth);
             }
             return new Dimension(maxWidth, H);
         }
 
         @Override
-        public InteractiveTextDialogImageSource build() {
+        public FieldEntryTextDialogImageSource build() {
             if (SRC.optionNames == null || SRC.optionCount == 0) {
                 throw new IllegalArgumentException("Number of input fields must be > 0.");
             }
             if (((FieldEntryTextDialogImageSource)SRC).inputSizeLimits.length != SRC.optionCount ||
-                    ((FieldEntryTextDialogImageSource)SRC).optionEnabledStates.length != SRC.optionCount
+                    SRC.optionEnabledStates.length != SRC.optionCount
             ) {
                 throw new IllegalArgumentException(
                         "Number of field names, size limits, and masks must be the same."
                 );
             }
+            ((FieldEntryTextDialogImageSource) SRC).inputFields = new String[SRC.optionCount];
+            for (int i = 0; i < SRC.optionCount; ++i) {
+                ((FieldEntryTextDialogImageSource) SRC).inputFields[i] = "";
+            }
             //todo?
-            return super.build();
+            return (FieldEntryTextDialogImageSource) super.build();
         }
 
         @Override
@@ -106,10 +116,16 @@ public class FieldEntryTextDialogImageSource extends InteractiveTextDialogImageS
             return (FieldEntryTextDialogImageSourceBuilder) super.setOptionEnabledState(maskState, atIndex);
         }
 
+        public FieldEntryTextDialogImageSourceBuilder setSubmitExecution(Runnable runnable) {
+            ((FieldEntryTextDialogImageSource)SRC).submitExecution = runnable;
+            return this;
+        }
+
     }
 
     String[] inputFields;
     int[] inputSizeLimits;
+    Runnable submitExecution;
 
     private int selectedField;
 
@@ -118,29 +134,118 @@ public class FieldEntryTextDialogImageSource extends InteractiveTextDialogImageS
         selectedField = 0;
         colors[DISABLED_OPTION_PRIMARY_COLOR] = Color.BLACK; //input field text
         colors[DISABLED_OPTION_SECONDARY_COLOR] = Color.WHITE; //input field bg
+        submitExecution = () -> {throw new IllegalStateException("Unspecified submission execution!");};
+    }
+
+    private String maskInputField(int index) {
+        if (optionEnabledStates[index]) {
+            return inputFields[index];
+        }
+        return "*".repeat(inputFields[index].length());
     }
 
     @Override
     public BufferedImage image() {
-        return null;
+        Dimension d = size();
+        BufferedImage result = new BufferedImage(d.width, d.height, BufferedImage.TYPE_INT_RGB);
+        int width = TextImager.measureText(title, textHeight).width;
+        ImageComposer.superimpose(
+                TextImager.image(
+                        title,
+                        textHeight,
+                        textHeight,
+                        width,
+                        colors[TITLE_COLOR],
+                        colors[BG_COLOR]
+                ),
+                result,
+                new Point((imageDimension.width - width) / 2, 0)
+        );
+        for (int i = 0; i < optionCount; ++i) {
+            width = TextImager.measureText(optionNames[i], textHeight).width;
+            ImageComposer.superimpose(
+                    TextImager.image(
+                            optionNames[i],
+                            textHeight,
+                            textHeight,
+                            width,
+                            colors[
+                                    selectedOption == i
+                                            ? SELECTED_OPTION_PRIMARY_COLOR
+                                            : ENABLED_OPTION_PRIMARY_COLOR
+                                    ],
+                            colors[
+                                    selectedOption == i
+                                            ? SELECTED_OPTION_SECONDARY_COLOR
+                                            : ENABLED_OPTION_SECONDARY_COLOR
+                                    ]
+                    ),
+                    result,
+                    new Point((imageDimension.width / 2) - width, (i + 2) * textHeight)
+            );
+            width = TextImager.measureEmptyField(inputSizeLimits[i], textHeight).width;
+            ImageComposer.superimpose(
+                    TextImager.image(
+                            maskInputField(i),
+                            textHeight,
+                            textHeight,
+                            width,
+                            colors[DISABLED_OPTION_PRIMARY_COLOR],
+                            colors[DISABLED_OPTION_SECONDARY_COLOR]
+                    ),
+                    result,
+                    new Point(imageDimension.width / 2, (i + 2) * textHeight)
+            );
+        }
+        return result;
     }
 
     @Override
-    public void inform(Point imageCoordinates) {
-
+    public void inform(@NotNull Point imageCoordinates) {
+        //todo?
     }
 
     @Override
     public void input(KeyEvent e) {
-
+        Character inputChar = InputEventUtils.toChar(e);
+        if (inputChar != null) {
+            if (inputFields[selectedField].length() < inputSizeLimits[selectedField]) {
+                inputFields[selectedField] += inputChar;
+            }
+        } else {
+            switch (e.getExtendedKeyCode()) {
+                case KeyEvent.VK_BACK_SPACE: case KeyEvent.VK_DELETE:
+                    if (inputFields[selectedField].length() > 0) {
+                        inputFields[selectedField] =
+                                inputFields[selectedField].substring(0, inputFields[selectedField].length() - 1);
+                    }
+                    break;
+                case KeyEvent.VK_TAB: case KeyEvent.VK_ENTER:
+                    if (selectedField == optionCount - 1) {
+                        submitExecution.run();
+                    } else {
+                        ++selectedField;
+                    }
+                    break;
+                case KeyEvent.VK_ESCAPE:
+                    escape();
+                    break;
+                default: //do nothing
+                    break;
+            }
+        }
     }
 
     @Override
     public void invoke(Point imageCoordinates) {
-
+        if (imageCoordinates == null) return;
+        int optionIndex = getOptionIndex(imageCoordinates.y);
+        if (optionIndex >= 0) {
+            selectedOption = optionIndex;
+        }
     }
 
-    public static InteractiveTextDialogImageSourceBuilder builder() {
+    public static FieldEntryTextDialogImageSourceBuilder builder() {
         return new FieldEntryTextDialogImageSourceBuilder();
     }
 }
