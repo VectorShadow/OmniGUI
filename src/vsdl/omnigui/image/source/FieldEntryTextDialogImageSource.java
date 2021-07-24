@@ -19,9 +19,9 @@ public class FieldEntryTextDialogImageSource extends InteractiveTextDialogImageS
 
         @Override
         Dimension calculateImageDimension() {
-            final int H = SRC.textHeight * (SRC.optionCount + 2); //title, empty line, one line per field
+            //title, empty line, one line per field + one pixel per line to show space between fields
+            final int H = SRC.textHeight * (SRC.optionCount + 2) + SRC.optionCount;
             int maxWidth = TextImager.measureText(SRC.title, SRC.textHeight).width;
-            System.out.println("Max Width after title: " + maxWidth);
             for (int i = 0; i < SRC.optionCount; ++i) {
                 Dimension dName = TextImager.measureText(
                         SRC.optionNames[i],
@@ -31,12 +31,10 @@ public class FieldEntryTextDialogImageSource extends InteractiveTextDialogImageS
                         ((FieldEntryTextDialogImageSource)SRC).inputSizeLimits[i],
                         SRC.textHeight
                 );
-                System.out.println("Name width: " + dName.width + "; field width: " + dField.width);
                 int width = Math.max(2 * dName.width, 2 * dField.width);
                 if (width > maxWidth) {
                     maxWidth = width;
                 }
-                System.out.println("Max Width after option: " + maxWidth);
             }
             return new Dimension(maxWidth, H);
         }
@@ -97,11 +95,37 @@ public class FieldEntryTextDialogImageSource extends InteractiveTextDialogImageS
             return (FieldEntryTextDialogImageSourceBuilder) super.setColors(colors);
         }
 
-        //todo - override color by index
-
         @Override
         public FieldEntryTextDialogImageSourceBuilder setEscapeExecution(Runnable r) {
             return (FieldEntryTextDialogImageSourceBuilder) super.setEscapeExecution(r);
+        }
+
+        public FieldEntryTextDialogImageSourceBuilder setBackgroundColor(Color color) {
+            SRC.colors[BG_COLOR] = color;
+            return this;
+        }
+
+        public FieldEntryTextDialogImageSourceBuilder setTitleColor(Color color) {
+            SRC.colors[TITLE_COLOR] = color;
+            return this;
+        }
+
+        public FieldEntryTextDialogImageSourceBuilder setEnabledColors(Color fg, Color bg) {
+            SRC.colors[ENABLED_OPTION_PRIMARY_COLOR] = fg;
+            SRC.colors[ENABLED_OPTION_SECONDARY_COLOR] = bg;
+            return this;
+        }
+
+        public FieldEntryTextDialogImageSourceBuilder setFieldColors(Color fg, Color bg) {
+            SRC.colors[DISABLED_OPTION_PRIMARY_COLOR] = fg;
+            SRC.colors[DISABLED_OPTION_SECONDARY_COLOR] = bg;
+            return this;
+        }
+
+        public FieldEntryTextDialogImageSourceBuilder setSelectedColors(Color fg, Color bg) {
+            SRC.colors[SELECTED_OPTION_PRIMARY_COLOR] = fg;
+            SRC.colors[SELECTED_OPTION_SECONDARY_COLOR] = bg;
+            return this;
         }
 
         public FieldEntryTextDialogImageSourceBuilder setInputFieldCharacterLimits(int... i) {
@@ -113,7 +137,7 @@ public class FieldEntryTextDialogImageSource extends InteractiveTextDialogImageS
          * Override setOptionEnabledState with a more appropriate name.
          */
         public FieldEntryTextDialogImageSourceBuilder setInputFieldMaskState(boolean maskState, int atIndex) {
-            return (FieldEntryTextDialogImageSourceBuilder) super.setOptionEnabledState(maskState, atIndex);
+            return (FieldEntryTextDialogImageSourceBuilder) super.setOptionEnabledState(!maskState, atIndex);
         }
 
         public FieldEntryTextDialogImageSourceBuilder setSubmitExecution(Runnable runnable) {
@@ -126,22 +150,18 @@ public class FieldEntryTextDialogImageSource extends InteractiveTextDialogImageS
     String[] inputFields;
     int[] inputSizeLimits;
     Runnable submitExecution;
-
-    private int selectedField;
+    //todo - error message field - we can set this if submit fails
 
     private FieldEntryTextDialogImageSource(
     ){
-        selectedField = 0;
+        selectedOption = 0;
         colors[DISABLED_OPTION_PRIMARY_COLOR] = Color.BLACK; //input field text
         colors[DISABLED_OPTION_SECONDARY_COLOR] = Color.WHITE; //input field bg
         submitExecution = () -> {throw new IllegalStateException("Unspecified submission execution!");};
     }
 
     private String maskInputField(int index) {
-        if (optionEnabledStates[index]) {
-            return inputFields[index];
-        }
-        return "*".repeat(inputFields[index].length());
+        return optionEnabledStates[index] ? inputFields[index] : "*".repeat(inputFields[index].length());
     }
 
     @Override
@@ -181,21 +201,33 @@ public class FieldEntryTextDialogImageSource extends InteractiveTextDialogImageS
                                     ]
                     ),
                     result,
-                    new Point((imageDimension.width / 2) - width, (i + 2) * textHeight)
+                    new Point((imageDimension.width / 2) - width, (i + 2) * textHeight + i)
             );
-            width = TextImager.measureEmptyField(inputSizeLimits[i], textHeight).width;
+            Point offset = new Point(imageDimension.width / 2, (i + 2) * textHeight + i);
             ImageComposer.superimpose(
-                    TextImager.image(
-                            maskInputField(i),
+                    TextImager.imageEmptyField(
+                            inputSizeLimits[i],
                             textHeight,
-                            textHeight,
-                            width,
-                            colors[DISABLED_OPTION_PRIMARY_COLOR],
                             colors[DISABLED_OPTION_SECONDARY_COLOR]
                     ),
                     result,
-                    new Point(imageDimension.width / 2, (i + 2) * textHeight)
+                    offset
             );
+            String maskedFieldText = maskInputField(i);
+            if (maskedFieldText.length() > 0) {
+                ImageComposer.superimpose(
+                        TextImager.image(
+                                maskInputField(i),
+                                textHeight,
+                                textHeight,
+                                TextImager.measureText(maskedFieldText, textHeight).width,
+                                colors[DISABLED_OPTION_PRIMARY_COLOR],
+                                colors[DISABLED_OPTION_SECONDARY_COLOR]
+                        ),
+                        result,
+                        offset
+                );
+            }
         }
         return result;
     }
@@ -209,26 +241,45 @@ public class FieldEntryTextDialogImageSource extends InteractiveTextDialogImageS
     public void input(KeyEvent e) {
         Character inputChar = InputEventUtils.toChar(e);
         if (inputChar != null) {
-            if (inputFields[selectedField].length() < inputSizeLimits[selectedField]) {
-                inputFields[selectedField] += inputChar;
+            if (inputFields[selectedOption].length() < inputSizeLimits[selectedOption]) {
+                inputFields[selectedOption] += inputChar;
             }
         } else {
             switch (e.getExtendedKeyCode()) {
                 case KeyEvent.VK_BACK_SPACE: case KeyEvent.VK_DELETE:
-                    if (inputFields[selectedField].length() > 0) {
-                        inputFields[selectedField] =
-                                inputFields[selectedField].substring(0, inputFields[selectedField].length() - 1);
+                    if (inputFields[selectedOption].length() > 0) {
+                        inputFields[selectedOption] =
+                                inputFields[selectedOption].substring(0, inputFields[selectedOption].length() - 1);
                     }
                     break;
-                case KeyEvent.VK_TAB: case KeyEvent.VK_ENTER:
-                    if (selectedField == optionCount - 1) {
+                case KeyEvent.VK_ENTER:
+                    if (selectedOption == optionCount - 1) {
                         submitExecution.run();
                     } else {
-                        ++selectedField;
+                        ++selectedOption;
+                    }
+                    break;
+                case KeyEvent.VK_TAB: //todo - this is currently not registering - why?
+                    if (InputEventUtils.hasModifier(KeyEvent.SHIFT_DOWN_MASK, e)) {
+                        if (selectedOption > 0) {
+                            --selectedOption;
+                        }
+                    } else if (selectedOption < optionCount - 1) {
+                        ++selectedOption;
                     }
                     break;
                 case KeyEvent.VK_ESCAPE:
                     escape();
+                    break;
+                case KeyEvent.VK_UP:
+                    if (--selectedOption < 0) {
+                        selectedOption = optionCount -1;
+                    }
+                    break;
+                case KeyEvent.VK_DOWN:
+                    if (++selectedOption >= optionCount) {
+                        selectedOption = 0;
+                    }
                     break;
                 default: //do nothing
                     break;

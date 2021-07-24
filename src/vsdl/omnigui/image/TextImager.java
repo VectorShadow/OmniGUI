@@ -16,6 +16,7 @@ public class TextImager {
     private static final String SPC = " ";
     private static final String TAB = "\t";
     private static final String NL = "\n";
+    private static final String BLANK = "_";
 
     private static final String TAB_ALIAS = "    ";
 
@@ -90,7 +91,18 @@ public class TextImager {
     public static Dimension measureEmptyField(int maximumCharacters, int lineHeightInPixels) {
         JLabel label = createRenderLabel(lineHeightInPixels, null, null);
         FontMetrics fm = label.getFontMetrics(label.getFont());
-        return new Dimension(fm.getMaxAdvance() * maximumCharacters, lineHeightInPixels);
+        return new Dimension((fm.stringWidth(BLANK) * maximumCharacters) + lineHeightInPixels, lineHeightInPixels);
+    }
+
+    public static BufferedImage imageEmptyField(int maximumCharacters, int lineHeightInPixels, Color fieldColor) {
+        return image(
+                BLANK.repeat(maximumCharacters),
+                lineHeightInPixels,
+                lineHeightInPixels,
+                measureEmptyField(maximumCharacters, lineHeightInPixels).width,
+                fieldColor,
+                fieldColor
+        );
     }
 
     public static BufferedImage image(

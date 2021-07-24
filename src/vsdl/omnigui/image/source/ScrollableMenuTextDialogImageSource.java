@@ -50,7 +50,6 @@ public class ScrollableMenuTextDialogImageSource extends InteractiveTextDialogIm
             if (SRC.optionNames == null) {
                 throw new IllegalArgumentException("Number of options must be > 0.");
             }
-            //todo?
             return (ScrollableMenuTextDialogImageSource) super.build();
         }
 
@@ -93,11 +92,37 @@ public class ScrollableMenuTextDialogImageSource extends InteractiveTextDialogIm
             return (ScrollableMenuTextDialogImageSourceBuilder) super.setColors(colors);
         }
 
-        //todo - override color by index
-
         @Override
         public ScrollableMenuTextDialogImageSourceBuilder setEscapeExecution(Runnable r) {
             return (ScrollableMenuTextDialogImageSourceBuilder) super.setEscapeExecution(r);
+        }
+
+        public ScrollableMenuTextDialogImageSourceBuilder setBackgroundColor(Color color) {
+            SRC.colors[BG_COLOR] = color;
+            return this;
+        }
+
+        public ScrollableMenuTextDialogImageSourceBuilder setTitleColor(Color color) {
+            SRC.colors[TITLE_COLOR] = color;
+            return this;
+        }
+
+        public ScrollableMenuTextDialogImageSourceBuilder setDisabledColors(Color fg, Color bg) {
+            SRC.colors[DISABLED_OPTION_PRIMARY_COLOR] = fg;
+            SRC.colors[DISABLED_OPTION_SECONDARY_COLOR] = bg;
+            return this;
+        }
+
+        public ScrollableMenuTextDialogImageSourceBuilder setEnabledColors(Color fg, Color bg) {
+            SRC.colors[ENABLED_OPTION_PRIMARY_COLOR] = fg;
+            SRC.colors[ENABLED_OPTION_SECONDARY_COLOR] = bg;
+            return this;
+        }
+
+        public ScrollableMenuTextDialogImageSourceBuilder setSelectedColors(Color fg, Color bg) {
+            SRC.colors[SELECTED_OPTION_PRIMARY_COLOR] = fg;
+            SRC.colors[SELECTED_OPTION_SECONDARY_COLOR] = bg;
+            return this;
         }
 
         public ScrollableMenuTextDialogImageSourceBuilder setOptionDescriptions(String... optionDescriptions) {
