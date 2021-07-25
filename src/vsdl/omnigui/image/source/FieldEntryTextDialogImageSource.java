@@ -40,8 +40,12 @@ public class FieldEntryTextDialogImageSource extends InteractiveTextDialogImageS
         }
 
         private void initializeFields() {
-            if (((FieldEntryTextDialogImageSource) SRC).inputFields == null)
+            if (((FieldEntryTextDialogImageSource) SRC).inputFields == null) {
                 ((FieldEntryTextDialogImageSource) SRC).inputFields = new String[SRC.optionCount];
+                for (int i = 0; i < SRC.optionCount; ++i) {
+                    ((FieldEntryTextDialogImageSource) SRC).inputFields[i] = "";
+                }
+            }
         }
 
         @Override
@@ -57,10 +61,6 @@ public class FieldEntryTextDialogImageSource extends InteractiveTextDialogImageS
                 );
             }
             initializeFields();
-            for (int i = 0; i < SRC.optionCount; ++i) {
-                ((FieldEntryTextDialogImageSource) SRC).inputFields[i] = "";
-            }
-            //todo?
             return (FieldEntryTextDialogImageSource) super.build();
         }
 
