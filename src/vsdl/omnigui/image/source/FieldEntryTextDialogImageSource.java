@@ -39,6 +39,11 @@ public class FieldEntryTextDialogImageSource extends InteractiveTextDialogImageS
             return new Dimension(maxWidth, H);
         }
 
+        private void initializeFields() {
+            if (((FieldEntryTextDialogImageSource) SRC).inputFields == null)
+                ((FieldEntryTextDialogImageSource) SRC).inputFields = new String[SRC.optionCount];
+        }
+
         @Override
         public FieldEntryTextDialogImageSource build() {
             if (SRC.optionNames == null || SRC.optionCount == 0) {
@@ -51,7 +56,7 @@ public class FieldEntryTextDialogImageSource extends InteractiveTextDialogImageS
                         "Number of field names, size limits, and masks must be the same."
                 );
             }
-            ((FieldEntryTextDialogImageSource) SRC).inputFields = new String[SRC.optionCount];
+            initializeFields();
             for (int i = 0; i < SRC.optionCount; ++i) {
                 ((FieldEntryTextDialogImageSource) SRC).inputFields[i] = "";
             }
@@ -138,6 +143,20 @@ public class FieldEntryTextDialogImageSource extends InteractiveTextDialogImageS
          */
         public FieldEntryTextDialogImageSourceBuilder setInputFieldMaskState(boolean maskState, int atIndex) {
             return (FieldEntryTextDialogImageSourceBuilder) super.setOptionEnabledState(!maskState, atIndex);
+        }
+
+        public FieldEntryTextDialogImageSourceBuilder prePopulateField(String fieldText, int atIndex) {
+            int[] lim = ((FieldEntryTextDialogImageSource)SRC).inputSizeLimits;
+            if (lim == null) {
+                throw new IllegalStateException("Field limits have not been set.");
+            }
+            if (fieldText.length() >= lim[atIndex]) {
+                throw new IllegalArgumentException("Argument [" + fieldText + "] exceeds field limit of " +
+                        lim[atIndex] + ".");
+            }
+            initializeFields();
+            ((FieldEntryTextDialogImageSource)SRC).inputFields[atIndex] = fieldText;
+            return this;
         }
 
         public FieldEntryTextDialogImageSourceBuilder setSubmitExecution(Runnable runnable) {
@@ -294,6 +313,10 @@ public class FieldEntryTextDialogImageSource extends InteractiveTextDialogImageS
         if (optionIndex >= 0) {
             selectedOption = optionIndex;
         }
+    }
+
+    public String[] readFields() {
+        return inputFields;
     }
 
     public static FieldEntryTextDialogImageSourceBuilder builder() {
