@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage;
 
 public class OmniPanel extends JPanel {
 
-    private static Dimension windowedDimension = ScreenTools.getDefaultWindowSize();
+    private Dimension windowedDimension = ScreenTools.getDefaultWindowSize();
 
     private boolean isInFullscreenMode;
 
@@ -16,13 +16,22 @@ public class OmniPanel extends JPanel {
 
     private BufferedImage scaledImage;
 
-    public OmniPanel() {
+    public OmniPanel(boolean isInFullscreenMode) {
+        this.isInFullscreenMode = isInFullscreenMode;
         setOpaque(true);
         setVisible(true);
     }
 
+    private Dimension getImageDimension() {
+        return (isInFullscreenMode ? ScreenTools.getMonitorDimension() : windowedDimension);
+    }
+
     BufferedImage getBlankScaledImage() {
-        return new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+        return new BufferedImage(
+                getImageDimension().width,
+                getImageDimension().height,
+                BufferedImage.TYPE_INT_ARGB
+        );
     }
 
     @Override
@@ -43,20 +52,13 @@ public class OmniPanel extends JPanel {
 
     void setFullscreenMode(boolean fullscreenMode) {
         isInFullscreenMode = fullscreenMode;
-        Dimension d = (isInFullscreenMode ? ScreenTools.getMonitorDimension() : windowedDimension);
-        if (d.height < 1) d.height = 1;
-        if (d.width < 1) d.width = 1;
-        setPreferredSize(d);
-        setMinimumSize(d);
-        setMaximumSize(d);
-        setSize(d);
-        setImage(
-                new BufferedImage(
-                        getWidth(),
-                        getHeight(),
-                        BufferedImage.TYPE_INT_ARGB
-                )
-        );
+        if (windowedDimension.height < 1) windowedDimension.height = 1;
+        if (windowedDimension.width < 1) windowedDimension.width = 1;
+        setPreferredSize(windowedDimension);
+        setMinimumSize(windowedDimension);
+        setMaximumSize(windowedDimension);
+        setSize(windowedDimension);
+        rescaleImage();
     }
 
     public void setImage(BufferedImage bufferedImage) {
@@ -71,9 +73,7 @@ public class OmniPanel extends JPanel {
     public void setSize(Dimension d) {
         if (d.height <= 0 || d.width <= 0)
             return;
-        if (!isInFullscreenMode) {
-            windowedDimension = d;
-        }
+        windowedDimension = d;
         super.setSize(d);
         rescaleImage();
         repaint();

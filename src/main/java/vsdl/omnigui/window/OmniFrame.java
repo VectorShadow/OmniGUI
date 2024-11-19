@@ -11,15 +11,17 @@ public class OmniFrame extends JFrame {
 
     private boolean isInFullscreenMode;
 
-    private OmniPanel panel;
+    private Point windowedOrigin;
+
+    private final OmniPanel panel;
 
     public OmniFrame(boolean fullScreenMode) {
         isInFullscreenMode = fullScreenMode;
-        panel = new OmniPanel();
+        panel = new OmniPanel(fullScreenMode);
         addComponentListener(
                 new ComponentAdapter() {
                     public void componentResized(ComponentEvent e) {
-                        /**
+                        /*
                          * When we resize this Window, we want to update the displayed image.
                          * In particular, we need to know the new contentPane size and resize the outputPanel to match.
                          * This will invoke the outputPanel's overridden setSize method which rescales the image
@@ -31,9 +33,15 @@ public class OmniFrame extends JFrame {
                         panel.setSize(target);
                         setContentPane(panel);
                     }
+
+                    @Override
+                    public void componentMoved(ComponentEvent e) {
+                        if (!isInFullscreenMode) windowedOrigin = getLocationOnScreen();
+                    }
                 }
         );
         setVisible(true);
+        windowedOrigin = this.getLocationOnScreen();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setContentPane(panel);
         initializeContents();
@@ -58,6 +66,7 @@ public class OmniFrame extends JFrame {
     public void toggleFullScreenMode() {
         isInFullscreenMode = !isInFullscreenMode;
         initializeContents();
+        if (!isInFullscreenMode) this.setLocation(windowedOrigin);
     }
 
     public void updatePanelImage(BufferedImage bufferedImage) {

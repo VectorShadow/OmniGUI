@@ -12,7 +12,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
-import java.util.EventListener;
 
 public class Gui {
 
@@ -30,19 +29,19 @@ public class Gui {
      * @throws IllegalStateException if a frame does not exist
      * @throws IllegalArgumentException if the EventListener argument is of an unsupported class
      */
-    public void addEventListener(EventListener listener) {
+    public void addEventListener(BoundEventListener listener) {
         if (frame == null) {
             throw new IllegalStateException("EventListeners may not be added before a frame is created.");
         }
-        if (listener instanceof KeyListener) {
-            frame.addKeyListener((KeyListener) listener);
-        } else if (listener instanceof MouseListener) { //to correctly capture coordinates, this must be on the pane
-            frame.getContentPane().addMouseListener((MouseListener) listener);
-        } else if (listener instanceof WindowListener) {
-            frame.addWindowListener((WindowListener) listener);
-        } else {
-            throw new IllegalArgumentException("Unsupported EventListener implementation: " + listener.getClass());
+        switch (listener) {
+            case KeyListener keyListener -> frame.addKeyListener(keyListener);
+            case MouseListener mouseListener ->  //to correctly capture coordinates, this must be on the pane
+                    frame.getContentPane().addMouseListener(mouseListener);
+            case WindowListener windowListener -> frame.addWindowListener(windowListener);
+            case null, default ->
+                    throw new IllegalArgumentException("Unsupported EventListener implementation: " + listener.getClass());
         }
+        listener.bind(this);
     }
 
     /**
@@ -111,6 +110,10 @@ public class Gui {
      */
     public void toggleFullscreenMode() {
         frame.toggleFullScreenMode();
+    }
+
+    OmniFrame getFrame() {
+        return this.frame;
     }
 
 }

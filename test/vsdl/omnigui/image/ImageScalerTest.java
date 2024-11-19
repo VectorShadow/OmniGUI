@@ -27,7 +27,7 @@ public class ImageScalerTest {
         int x = 15;
         int y = 22;
         MouseEvent mouseEvent =
-                new MouseEvent(new OmniPanel(), 0, 0L, 0, x, y, 0, false);
+                new MouseEvent(new OmniPanel(false), 0, 0L, 0, x, y, 0, false);
         Point p = ImageScaler.getMouseEventCoordinates(mouseEvent);
         assert p.x == x && p.y == y;
     }
