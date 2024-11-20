@@ -1,6 +1,6 @@
 package vsdl.omnigui.image.source;
 
-import vsdl.omnigui.api.message.Message;
+import org.vsdl.common.mmo.comm.Message;
 import vsdl.omnigui.api.message.MessageDestination;
 
 import java.awt.*;
@@ -117,6 +117,6 @@ public class HistoricalTextDisplayAreaImageSource implements InteractiveImageSou
 
     @Override
     public void receiveMessage(Message message) {
-        addMessage(message.getMessageText());
+        addMessage(message.getMessageContent().toString());
     }
 }

@@ -1,6 +1,6 @@
 package vsdl.omnigui.image.source;
 
-import vsdl.omnigui.api.message.Message;
+import org.vsdl.common.mmo.comm.Message;
 import vsdl.omnigui.api.message.MessageSource;
 import vsdl.omnigui.api.message.Messenger;
 import vsdl.omnigui.api.util.KeyboardUtils;
@@ -45,7 +45,7 @@ public class TextEntryFieldImageSource implements InteractiveImageSource, Messag
         switch (e.getKeyCode()) {
             case KeyEvent.VK_ENTER:
                 if (!inputText.isEmpty()) {
-                    notify(new Message(inputText, ""));
+                    notify(new Message("", inputText));
                     inputText = "";
                 }
                 break;

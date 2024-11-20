@@ -1,5 +1,7 @@
 package vsdl.omnigui.api.message;
 
+import org.vsdl.common.mmo.comm.Message;
+
 import java.util.ArrayList;
 import java.util.List;
 
