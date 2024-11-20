@@ -1,5 +1,7 @@
 package vsdl.omnigui.image;
 
+import vsdl.omnigui.image.source.TextImageSourceConfiguration;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -97,23 +99,26 @@ public class TextImager {
     public static BufferedImage imageEmptyField(int maximumCharacters, int lineHeightInPixels, Color fieldColor) {
         return image(
                 BLANK.repeat(maximumCharacters),
-                lineHeightInPixels,
-                lineHeightInPixels,
-                measureEmptyField(maximumCharacters, lineHeightInPixels).width,
-                fieldColor,
-                fieldColor
+                new TextImageSourceConfiguration(
+                        lineHeightInPixels,
+                        new Dimension(measureEmptyField(maximumCharacters, lineHeightInPixels).width, lineHeightInPixels),
+                        fieldColor,
+                        fieldColor
+
+                )
         );
     }
 
     public static BufferedImage image(
             String text,
-            int lineHeightInPixels,
-            int imageHeightInPixels,
-            int imageWidthInPixels,
-            Color foregroundColor,
-            Color backgroundColor) {
-        BufferedImage result = new BufferedImage(imageWidthInPixels, imageHeightInPixels, BufferedImage.TYPE_INT_RGB);
-        composeImage(text, lineHeightInPixels, foregroundColor, backgroundColor, result);
+            TextImageSourceConfiguration config
+    ) {
+        BufferedImage result = new BufferedImage(
+                config.getTextAreaDimension().width,
+                config.getTextAreaDimension().height,
+                BufferedImage.TYPE_INT_RGB
+        );
+        composeImage(text, config.getLineHeight(), config.getTextForegroundColor(), config.getTextBackgroundColor(), result);
         return result;
     }
 

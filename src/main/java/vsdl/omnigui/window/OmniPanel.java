@@ -6,6 +6,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+import static vsdl.omnigui.image.ImageComposer.composeBlankImage;
+
 public class OmniPanel extends JPanel {
 
     private Dimension windowedDimension = ScreenTools.getDefaultWindowSize();
@@ -27,10 +29,9 @@ public class OmniPanel extends JPanel {
     }
 
     BufferedImage getBlankScaledImage() {
-        return new BufferedImage(
+        return composeBlankImage(
                 getImageDimension().width,
-                getImageDimension().height,
-                BufferedImage.TYPE_INT_ARGB
+                getImageDimension().height
         );
     }
 

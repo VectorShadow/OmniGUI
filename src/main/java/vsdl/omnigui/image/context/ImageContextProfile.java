@@ -44,4 +44,19 @@ public class ImageContextProfile {
             }
         }
     }
+
+    public void startAutoRepaintDaemon(Gui gui, int repaintInterval) {
+        new Thread(() -> {
+            for (;;) {
+                try {
+                    Thread.sleep(Math.max(16, repaintInterval));
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                gui.clearCanvas();
+                paint(gui);
+                gui.updateFrameImage();
+            }
+        }).start();
+    }
 }

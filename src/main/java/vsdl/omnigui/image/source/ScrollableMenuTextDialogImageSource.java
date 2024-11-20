@@ -156,11 +156,12 @@ public class ScrollableMenuTextDialogImageSource extends InteractiveTextDialogIm
         ImageComposer.superimpose(
                 TextImager.image(
                         title,
-                        textHeight,
-                        textHeight,
-                        width,
-                        colors[TITLE_COLOR],
-                        colors[BG_COLOR]
+                        new TextImageSourceConfiguration(
+                                textHeight,
+                                width,
+                                colors[TITLE_COLOR],
+                                colors[BG_COLOR]
+                        )
                 ),
                 result,
                 new Point((imageDimension.width - width) / 2, row)
@@ -171,21 +172,22 @@ public class ScrollableMenuTextDialogImageSource extends InteractiveTextDialogIm
             ImageComposer.superimpose(
                     TextImager.image(
                             optionNames[i],
-                            textHeight,
-                            textHeight,
-                            width,
-                            colors[
-                                    optionEnabledStates[i]
-                                            ? selectedOption == i
-                                            ? SELECTED_OPTION_PRIMARY_COLOR
-                                            : ENABLED_OPTION_PRIMARY_COLOR
-                                            : DISABLED_OPTION_PRIMARY_COLOR
-                                    ],
-                            colors[
-                                    optionEnabledStates[i] && selectedOption == i
-                                            ? SELECTED_OPTION_SECONDARY_COLOR
-                                            : BG_COLOR
-                                    ]
+                            new TextImageSourceConfiguration(
+                                    textHeight,
+                                    width,
+                                    colors[
+                                            optionEnabledStates[i]
+                                                    ? selectedOption == i
+                                                    ? SELECTED_OPTION_PRIMARY_COLOR
+                                                    : ENABLED_OPTION_PRIMARY_COLOR
+                                                    : DISABLED_OPTION_PRIMARY_COLOR
+                                            ],
+                                    colors[
+                                            optionEnabledStates[i] && selectedOption == i
+                                                    ? SELECTED_OPTION_SECONDARY_COLOR
+                                                    : BG_COLOR
+                                            ]
+                            )
                     ),
                     result,
                     new Point((imageDimension.width - width) / 2, row++ * textHeight)

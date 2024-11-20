@@ -1,15 +1,33 @@
-package vsdl.omnigui.fixtures;
+package vsdl.omnigui.api.listeners;
 
-import vsdl.omnigui.api.listeners.BoundKeyListener;
-import vsdl.omnigui.api.listeners.BoundMouseListener;
-import vsdl.omnigui.api.listeners.BoundWindowListener;
+import vsdl.omnigui.image.context.ImageContextProfile;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 
-public class TestEventListenerFixture {
+public class ListenerProvider {
+
+    public static BoundKeyListener getImageContextProfileInputKeyListener(ImageContextProfile imageContextProfile) {
+        return new BoundKeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                imageContextProfile.keyPress(e);
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        };
+    }
+
     public static BoundKeyListener getFullscreenToggleKeyListener() {
         return new BoundKeyListener() {
 
@@ -20,10 +38,8 @@ public class TestEventListenerFixture {
 
             @Override
             public void keyPressed(KeyEvent e) {
-                System.out.println(e);
                 if (e.getKeyCode() == KeyEvent.VK_ENTER && (e.getModifiersEx() == KeyEvent.ALT_DOWN_MASK || e.getModifiersEx() == KeyEvent.ALT_DOWN_MASK + KeyEvent.ALT_GRAPH_DOWN_MASK)) {
-                    System.out.println("ALT ENTER");
-                    getBoundFrame().toggleFullScreenMode();
+                    getBoundGui().toggleFullscreenMode();
                 }
             }
 

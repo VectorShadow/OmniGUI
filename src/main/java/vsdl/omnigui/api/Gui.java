@@ -106,13 +106,6 @@ public class Gui {
     }
 
     /**
-     * Get a blank image sized for the gui's frame.
-     */
-    public BufferedImage getCanvasImage() {
-        return canvas.getImage();
-    }
-
-    /**
      * Toggle between fullscreen and windowed mode.
      */
     public void toggleFullscreenMode() {

@@ -3,6 +3,8 @@ package vsdl.omnigui.canvas;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+import static vsdl.omnigui.image.ImageComposer.composeBlankImage;
+
 public class Canvas {
 
     private final int HEIGHT;
@@ -24,6 +26,13 @@ public class Canvas {
 
     public BufferedImage getImage() {
         return image;
+    }
+
+    public BufferedImage getBlankImage() {
+        return composeBlankImage(
+                WIDTH,
+                HEIGHT
+        );
     }
 
     public void updateImage(BufferedImage subImage, Point origin, int rgbIgnore) {

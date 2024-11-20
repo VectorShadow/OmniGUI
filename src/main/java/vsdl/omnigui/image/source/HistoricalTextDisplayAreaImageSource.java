@@ -1,5 +1,8 @@
 package vsdl.omnigui.image.source;
 
+import vsdl.omnigui.api.message.Message;
+import vsdl.omnigui.api.message.MessageDestination;
+
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
@@ -10,14 +13,11 @@ import java.util.LinkedList;
 import static java.util.Objects.nonNull;
 import static vsdl.omnigui.image.ImageComposer.superimpose;
 
-public class HistoricalTextDisplayAreaImageSource implements InteractiveImageSource {
+public class HistoricalTextDisplayAreaImageSource implements InteractiveImageSource, MessageDestination {
 
     private final int messageLimit;
-    private final int lineHeight;
-    private final Dimension textAreaSize;
-    private final Color backgroundColor;
+    private final TextImageSourceConfiguration config;
     private final Color freshForegroundColor;
-    private final Color staleForegroundColor;
     private final boolean displayFreshMessageAtTop;
 
     private final Deque<String> messageDeque = new LinkedList<>();
@@ -26,19 +26,13 @@ public class HistoricalTextDisplayAreaImageSource implements InteractiveImageSou
 
     public HistoricalTextDisplayAreaImageSource(
             final int messageLimit,
-            final int lineHeight,
-            final Dimension textAreaSize,
-            final Color backgroundColor,
+            final TextImageSourceConfiguration config,
             final Color freshForegroundColor,
-            final Color staleForegroundColor,
             final boolean displayFreshMessageAtTop
     ) {
         this.messageLimit = messageLimit;
-        this.lineHeight = lineHeight;
-        this.textAreaSize = textAreaSize;
-        this.backgroundColor = backgroundColor;
+        this.config = config;
         this.freshForegroundColor = freshForegroundColor;
-        this.staleForegroundColor = staleForegroundColor;
         this.displayFreshMessageAtTop = displayFreshMessageAtTop;
         this.freshImageSource = getBlankImageSource();
     }
@@ -52,10 +46,7 @@ public class HistoricalTextDisplayAreaImageSource implements InteractiveImageSou
             staleImageSources.addFirst(
                     new InteractiveTextImageSource(
                             freshImageSource.TEXT,
-                            lineHeight,
-                            textAreaSize,
-                            backgroundColor,
-                            staleForegroundColor,
+                            config.clone(),
                             () -> {}
                     )
             );
@@ -65,10 +56,12 @@ public class HistoricalTextDisplayAreaImageSource implements InteractiveImageSou
         }
         freshImageSource = new InteractiveTextImageSource(
                 message,
-                lineHeight,
-                textAreaSize,
-                backgroundColor,
-                freshForegroundColor,
+                new TextImageSourceConfiguration(
+                    config.getLineHeight(),
+                    config.getTextAreaDimension(),
+                    config.getTextBackgroundColor(),
+                    freshForegroundColor
+                ),
                 () -> {}
         );
     }
@@ -76,10 +69,7 @@ public class HistoricalTextDisplayAreaImageSource implements InteractiveImageSou
     private InteractiveTextImageSource getBlankImageSource() {
         return new InteractiveTextImageSource(
                 "",
-                lineHeight,
-                textAreaSize,
-                backgroundColor,
-                staleForegroundColor,
+                config.clone(),
                 () -> {}
         );
     }
@@ -88,7 +78,9 @@ public class HistoricalTextDisplayAreaImageSource implements InteractiveImageSou
     public BufferedImage image() {
         BufferedImage image = new BufferedImage(size().width, size().height, BufferedImage.TYPE_INT_RGB);
         for (int i = 0; i < messageLimit; ++i) {
-            int yIndex = displayFreshMessageAtTop ? i * textAreaSize.height : size().height - (i + 1) * textAreaSize.height;
+            int yIndex = displayFreshMessageAtTop
+                    ? i * config.getTextAreaDimension().height
+                    : size().height - (i + 1) * config.getTextAreaDimension().height;
             BufferedImage image0 =
                     i == 0
                             ? freshImageSource.image()
@@ -117,6 +109,14 @@ public class HistoricalTextDisplayAreaImageSource implements InteractiveImageSou
 
     @Override
     public Dimension size() {
-        return new Dimension(textAreaSize.width, textAreaSize.height * messageLimit);
+        return new Dimension(
+                config.getTextAreaDimension().width,
+                config.getTextAreaDimension().height * messageLimit
+        );
+    }
+
+    @Override
+    public void receiveMessage(Message message) {
+        addMessage(message.getMessageText());
     }
 }

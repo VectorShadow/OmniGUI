@@ -190,12 +190,13 @@ public class FieldEntryTextDialogImageSource extends InteractiveTextDialogImageS
         int width = TextImager.measureText(title, textHeight).width;
         ImageComposer.superimpose(
                 TextImager.image(
-                        title,
-                        textHeight,
-                        textHeight,
-                        width,
-                        colors[TITLE_COLOR],
-                        colors[BG_COLOR]
+                            title,
+                            new TextImageSourceConfiguration(
+                            textHeight,
+                            width,
+                            colors[TITLE_COLOR],
+                            colors[BG_COLOR]
+                        )
                 ),
                 result,
                 new Point((imageDimension.width - width) / 2, 0)
@@ -205,19 +206,20 @@ public class FieldEntryTextDialogImageSource extends InteractiveTextDialogImageS
             ImageComposer.superimpose(
                     TextImager.image(
                             optionNames[i],
-                            textHeight,
-                            textHeight,
-                            width,
-                            colors[
-                                    selectedOption == i
-                                            ? SELECTED_OPTION_PRIMARY_COLOR
-                                            : ENABLED_OPTION_PRIMARY_COLOR
-                                    ],
-                            colors[
-                                    selectedOption == i
-                                            ? SELECTED_OPTION_SECONDARY_COLOR
-                                            : ENABLED_OPTION_SECONDARY_COLOR
-                                    ]
+                            new TextImageSourceConfiguration(
+                                textHeight,
+                                width,
+                                colors[
+                                        selectedOption == i
+                                                ? SELECTED_OPTION_PRIMARY_COLOR
+                                                : ENABLED_OPTION_PRIMARY_COLOR
+                                        ],
+                                colors[
+                                        selectedOption == i
+                                                ? SELECTED_OPTION_SECONDARY_COLOR
+                                                : ENABLED_OPTION_SECONDARY_COLOR
+                                        ]
+                            )
                     ),
                     result,
                     new Point((imageDimension.width / 2) - width, (i + 2) * textHeight + i)
@@ -233,15 +235,16 @@ public class FieldEntryTextDialogImageSource extends InteractiveTextDialogImageS
                     offset
             );
             String maskedFieldText = maskInputField(i);
-            if (maskedFieldText.length() > 0) {
+            if (!maskedFieldText.isEmpty()) {
                 ImageComposer.superimpose(
                         TextImager.image(
                                 maskInputField(i),
-                                textHeight,
-                                textHeight,
-                                TextImager.measureText(maskedFieldText, textHeight).width,
-                                colors[DISABLED_OPTION_PRIMARY_COLOR],
-                                colors[DISABLED_OPTION_SECONDARY_COLOR]
+                                new TextImageSourceConfiguration(
+                                    textHeight,
+                                    TextImager.measureText(maskedFieldText, textHeight).width,
+                                    colors[DISABLED_OPTION_PRIMARY_COLOR],
+                                    colors[DISABLED_OPTION_SECONDARY_COLOR]
+                                )
                         ),
                         result,
                         offset
@@ -266,7 +269,7 @@ public class FieldEntryTextDialogImageSource extends InteractiveTextDialogImageS
         } else {
             switch (e.getExtendedKeyCode()) {
                 case KeyEvent.VK_BACK_SPACE: case KeyEvent.VK_DELETE:
-                    if (inputFields[selectedOption].length() > 0) {
+                    if (!inputFields[selectedOption].isEmpty()) {
                         inputFields[selectedOption] =
                                 inputFields[selectedOption].substring(0, inputFields[selectedOption].length() - 1);
                     }

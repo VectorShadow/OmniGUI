@@ -1,7 +1,7 @@
 package vsdl.omnigui.exec;
 
 import vsdl.omnigui.api.Gui;
-import vsdl.omnigui.fixtures.TestEventListenerFixture;
+import vsdl.omnigui.api.listeners.ListenerProvider;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -31,8 +31,8 @@ public class TestDriver {
         gui.paintCanvas(testImage, origin, -1);
         gui.paintCanvas(transparentTestImage, xparentOrigin, RGB);
         gui.updateFrameImage();
-        gui.addEventListener(TestEventListenerFixture.getCoordinateLocatorMouseListener());
-        gui.addEventListener(TestEventListenerFixture.getFullscreenToggleKeyListener());
-        gui.addEventListener(TestEventListenerFixture.getDefaultCloseWindowListener());
+        gui.addEventListener(ListenerProvider.getCoordinateLocatorMouseListener());
+        gui.addEventListener(ListenerProvider.getFullscreenToggleKeyListener());
+        gui.addEventListener(ListenerProvider.getDefaultCloseWindowListener());
     }
 }

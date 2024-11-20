@@ -2,7 +2,7 @@ package vsdl.omnigui.api;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import vsdl.omnigui.fixtures.TestEventListenerFixture;
+import vsdl.omnigui.api.listeners.ListenerProvider;
 
 import java.awt.*;
 
@@ -32,9 +32,9 @@ public class GuiTest {
 
     @Test
     public void testAddSupportedEventListeners() {
-        BoundEventListener k = TestEventListenerFixture.getFullscreenToggleKeyListener();
-        BoundEventListener m = TestEventListenerFixture.getCoordinateLocatorMouseListener();
-        BoundEventListener w = TestEventListenerFixture.getDefaultCloseWindowListener();
+        BoundEventListener k = ListenerProvider.getFullscreenToggleKeyListener();
+        BoundEventListener m = ListenerProvider.getCoordinateLocatorMouseListener();
+        BoundEventListener w = ListenerProvider.getDefaultCloseWindowListener();
         g.createFrame(false, null, null);
         g.addEventListener(k);
         g.addEventListener(m);

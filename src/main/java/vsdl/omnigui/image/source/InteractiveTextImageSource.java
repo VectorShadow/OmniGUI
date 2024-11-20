@@ -10,18 +10,12 @@ import java.awt.image.BufferedImage;
 public class InteractiveTextImageSource implements InteractiveImageSource {
 
     final String TEXT;
-    final int LINE_HEIGHT;
-    final Dimension AREA;
-    final Color BG;
-    final Color FG;
+    final TextImageSourceConfiguration CONFIG;
     final Runnable RUN;
 
-    public InteractiveTextImageSource(String text, int lineHeight, Dimension area, Color backGroundColor, Color foreGroundColor, Runnable runnable) {
+    public InteractiveTextImageSource(String text, TextImageSourceConfiguration config, Runnable runnable) {
         TEXT = text;
-        LINE_HEIGHT = lineHeight;
-        AREA = area;
-        BG = backGroundColor;
-        FG = foreGroundColor;
+        CONFIG = config;
         RUN = runnable;
     }
 
@@ -29,11 +23,7 @@ public class InteractiveTextImageSource implements InteractiveImageSource {
     public BufferedImage image() {
         return TextImager.image(
                 TEXT,
-                LINE_HEIGHT,
-                AREA.height,
-                AREA.width,
-                FG,
-                BG
+                CONFIG
         );
     }
 
@@ -54,6 +44,6 @@ public class InteractiveTextImageSource implements InteractiveImageSource {
 
     @Override
     public Dimension size() {
-        return AREA;
+        return CONFIG.getTextAreaDimension();
     }
 }
