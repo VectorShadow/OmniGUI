@@ -16,7 +16,7 @@ public class InteractiveTextImageSource implements InteractiveImageSource {
     final Color FG;
     final Runnable RUN;
 
-    public InteractiveTextImageSource(String text, int lineHeight, Dimension area, Color foreGroundColor, Color backGroundColor, Runnable runnable) {
+    public InteractiveTextImageSource(String text, int lineHeight, Dimension area, Color backGroundColor, Color foreGroundColor, Runnable runnable) {
         TEXT = text;
         LINE_HEIGHT = lineHeight;
         AREA = area;

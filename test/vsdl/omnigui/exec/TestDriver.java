@@ -6,7 +6,7 @@ import vsdl.omnigui.fixtures.TestEventListenerFixture;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class Driver {
+public class TestDriver {
     public static void main(String[] args) {
         Gui gui = new Gui(new Dimension(160, 90));
         gui.createFrame(false, "Test", null);
