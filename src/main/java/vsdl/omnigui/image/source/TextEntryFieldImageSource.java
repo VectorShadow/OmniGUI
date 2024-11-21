@@ -45,7 +45,7 @@ public class TextEntryFieldImageSource implements InteractiveImageSource, Messag
         switch (e.getKeyCode()) {
             case KeyEvent.VK_ENTER:
                 if (!inputText.isEmpty()) {
-                    notify(new Message("", inputText));
+                    notify(new Message(inputText));
                     inputText = "";
                 }
                 break;
