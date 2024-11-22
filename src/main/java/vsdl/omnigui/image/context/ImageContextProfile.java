@@ -7,34 +7,55 @@ import java.awt.event.KeyEvent;
 import java.util.HashMap;
 
 public class ImageContextProfile {
-    final ImageContextHierarchy ICH;
-    final HashMap<Integer, ImageContext> HOTKEYS;
-    int rgbIgnore = 0xff000000;
+    private final ImageContextHierarchy hierarchy;
+    private final HashMap<Integer, ImageContext> hotkeys;
+
+    private boolean isActive = true;
+
+    private int rgbIgnore = 0xff000000;
 
     ImageContextProfile() {
-        ICH = new ImageContextHierarchy();
-        HOTKEYS = new HashMap<>();
+        hierarchy = new ImageContextHierarchy();
+        hotkeys = new HashMap<>();
+    }
+
+    void appendImageContext(ImageContext imageContext) {
+        hierarchy.append(imageContext);
+    }
+
+    void appendImageContext(
+            ImageContext imageContext,
+            int... extendedKeyCodeAndModifiers
+    ) {
+        appendImageContext(imageContext);
+        for (int extendedKeyCodeAndModifier : extendedKeyCodeAndModifiers) {
+            hotkeys.put(extendedKeyCodeAndModifier, imageContext);
+        }
+    }
+
+    void setRgbIgnore(int rgbIgnore){
+        this.rgbIgnore = rgbIgnore;
     }
 
     public void paint(Gui g) {
-        for (ImageContext c : ICH) {
+        for (ImageContext c : hierarchy) {
             g.paintCanvas(c.getSource().image(), c.getOrigin(), rgbIgnore);
         }
     }
 
     public void keyPress(KeyEvent e) {
-        ImageContext context = HOTKEYS.get(e.getExtendedKeyCode() | e.getModifiersEx());
+        ImageContext context = hotkeys.get(e.getExtendedKeyCode() | e.getModifiersEx());
         if (context != null) {
             context.getSource().input(e);
         } else {
             //attempt to apply the keypress to the uppermost context in the hierarchy
             //this way contexts with a large number of valid inputs need not hash them all as hotkeys.
-            ICH.getUppermost().getSource().input(e);
+            hierarchy.getUppermost().getSource().input(e);
         }
     }
 
     public void mouseClick(Point p, boolean isLeftClick) {
-        ImageContext context = ICH.find(p);
+        ImageContext context = hierarchy.find(p);
         if (context != null) {
             Point imageCoordinates = new Point(p.x - context.getOrigin().x, p.y - context.getOrigin().y);
             if (isLeftClick) {
@@ -46,8 +67,9 @@ public class ImageContextProfile {
     }
 
     public void startAutoRepaintDaemon(Gui gui, int repaintInterval) {
+        isActive = true;
         new Thread(() -> {
-            for (;;) {
+            do {
                 try {
                     Thread.sleep(Math.max(16, repaintInterval));
                 } catch (InterruptedException e) {
@@ -56,7 +78,27 @@ public class ImageContextProfile {
                 gui.clearCanvas();
                 paint(gui);
                 gui.updateFrameImage();
-            }
+            } while (isActive);
         }).start();
+    }
+
+    public void stopAutoRepaintDaemon() {
+        isActive = false;
+    }
+
+    public ImageContextHierarchy getHierarchy() {
+        return hierarchy;
+    }
+
+    public HashMap<Integer, ImageContext> getHotkeys() {
+        return hotkeys;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public int getRgbIgnore() {
+        return rgbIgnore;
     }
 }

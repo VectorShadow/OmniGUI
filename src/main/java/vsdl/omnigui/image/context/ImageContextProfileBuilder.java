@@ -15,23 +15,22 @@ public class ImageContextProfileBuilder {
             ImageContext imageContext,
             int... extendedKeyCodeAndModifiers
     ) {
-        for (int extendedKeyCodeAndModifier : extendedKeyCodeAndModifiers) {
-            PROFILE.HOTKEYS.put(extendedKeyCodeAndModifier, imageContext);
-        }
-        return this.appendImageContext(imageContext);
-    }
-
-    public ImageContextProfileBuilder appendImageContext(ImageContext imageContext) {
-        PROFILE.ICH.append(imageContext);
+        PROFILE.appendImageContext(imageContext, extendedKeyCodeAndModifiers);
         return this;
     }
 
+    public ImageContextProfileBuilder appendImageContext(ImageContext imageContext) {
+        return appendImageContext(imageContext, new int[0]);
+    }
+
     public ImageContextProfileBuilder overrideTransparency(int rgbIgnore) {
-        PROFILE.rgbIgnore = rgbIgnore;
+        PROFILE.setRgbIgnore(rgbIgnore);
         return this;
     }
 
     public ImageContextProfile build() {
+        if (!PROFILE.getHierarchy().hasUppermost())
+            throw new IllegalStateException("ImageContextProfile must contain at least one context.");
         return this.PROFILE;
     }
 }
