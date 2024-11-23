@@ -40,6 +40,8 @@ public class OmniFrame extends JFrame {
                     }
                 }
         );
+        //allow explicit handling of VK_TAB
+        setFocusTraversalKeysEnabled(false);
         setVisible(true);
         windowedOrigin = this.getLocationOnScreen();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

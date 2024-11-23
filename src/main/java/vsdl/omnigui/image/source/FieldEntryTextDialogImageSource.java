@@ -281,7 +281,7 @@ public class FieldEntryTextDialogImageSource extends InteractiveTextDialogImageS
                         ++selectedOption;
                     }
                     break;
-                case KeyEvent.VK_TAB: //todo - this is currently not registering - why?
+                case KeyEvent.VK_TAB:
                     if (InputEventUtils.hasModifier(KeyEvent.SHIFT_DOWN_MASK, e)) {
                         if (selectedOption > 0) {
                             --selectedOption;
